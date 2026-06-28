@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useRef, useEffect, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+} from "react";
 import { tracks as defaultTracks } from "../data/tracks";
 
 const PlayerContext = createContext(null);
@@ -23,8 +30,10 @@ export function PlayerProvider({ children }) {
     const update = () => setCurrentTime(audio.currentTime);
     const loaded = () => setDuration(audio.duration || 0);
     const ended = () => {
-      if (repeat) { audio.currentTime = 0; audio.play(); }
-      else next();
+      if (repeat) {
+        audio.currentTime = 0;
+        audio.play();
+      } else next();
     };
     audio.addEventListener("timeupdate", update);
     audio.addEventListener("loadedmetadata", loaded);
@@ -34,7 +43,7 @@ export function PlayerProvider({ children }) {
       audio.removeEventListener("loadedmetadata", loaded);
       audio.removeEventListener("ended", ended);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [repeat, currentIndex, tracks]);
 
   useEffect(() => {
@@ -48,7 +57,7 @@ export function PlayerProvider({ children }) {
     if (!audio) return;
     if (isPlaying) audio.play().catch(() => {});
     else audio.pause();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying]);
 
   useEffect(() => {
@@ -58,19 +67,27 @@ export function PlayerProvider({ children }) {
     setCurrentTime(0);
     setDuration(0);
     if (isPlaying) audio.play().catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex, tracks]);
 
   const play = (idx) => {
-    if (idx !== undefined && idx !== currentIndex) { setCurrentIndex(idx); setIsPlaying(true); return; }
+    if (idx !== undefined && idx !== currentIndex) {
+      setCurrentIndex(idx);
+      setIsPlaying(true);
+      return;
+    }
     setIsPlaying(true);
   };
   const pause = () => setIsPlaying(false);
-  const toggle = () => setIsPlaying(p => !p);
+  const toggle = () => setIsPlaying((p) => !p);
 
   const next = useCallback(() => {
-    setCurrentIndex(i => {
+    setCurrentIndex((i) => {
       if (shuffle) {
-        let n; do { n = Math.floor(Math.random() * tracks.length); } while (n === i && tracks.length > 1);
+        let n;
+        do {
+          n = Math.floor(Math.random() * tracks.length);
+        } while (n === i && tracks.length > 1);
         return n;
       }
       return (i + 1) % tracks.length;
@@ -79,14 +96,20 @@ export function PlayerProvider({ children }) {
   }, [shuffle, tracks.length]);
 
   const prev = () => {
-    if (currentTime > 3) { audioRef.current.currentTime = 0; return; }
-    setCurrentIndex(i => (i - 1 + tracks.length) % tracks.length);
+    if (currentTime > 3) {
+      audioRef.current.currentTime = 0;
+      return;
+    }
+    setCurrentIndex((i) => (i - 1 + tracks.length) % tracks.length);
     setIsPlaying(true);
   };
 
   const seek = (t) => {
     const audio = audioRef.current;
-    if (audio) { audio.currentTime = t; setCurrentTime(t); }
+    if (audio) {
+      audio.currentTime = t;
+      setCurrentTime(t);
+    }
   };
 
   const addTrack = (file) => {
@@ -99,17 +122,35 @@ export function PlayerProvider({ children }) {
       src: url,
       color: "#f59e0b",
     };
-    setTracks(t => [...t, newTrack]);
+    setTracks((t) => [...t, newTrack]);
   };
 
   return (
-    <PlayerContext.Provider value={{
-      tracks, currentTrack, currentIndex, isPlaying,
-      shuffle, setShuffle, repeat, setRepeat,
-      volume, setVolume, muted, setMuted,
-      currentTime, duration,
-      play, pause, toggle, next, prev, seek, addTrack,
-    }}>
+    <PlayerContext.Provider
+      value={{
+        tracks,
+        currentTrack,
+        currentIndex,
+        isPlaying,
+        shuffle,
+        setShuffle,
+        repeat,
+        setRepeat,
+        volume,
+        setVolume,
+        muted,
+        setMuted,
+        currentTime,
+        duration,
+        play,
+        pause,
+        toggle,
+        next,
+        prev,
+        seek,
+        addTrack,
+      }}
+    >
       <audio ref={audioRef} src={currentTrack?.src} preload="metadata" />
       {children}
     </PlayerContext.Provider>
